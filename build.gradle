@@ -5,7 +5,7 @@ task wrapper(type:Wrapper){
 }
 
 repositories { 
-  flatDir(dirs: file('/usr/share/java'))
+  flatDir(dirs: file('./libs'))
 }
 
 dependencies { 
