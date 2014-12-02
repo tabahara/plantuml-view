@@ -10,6 +10,7 @@ repositories {
 
 dependencies { 
   compile 'batik:batik-all:1.7',
+          "plantuml:plantuml:8010",
           "w3c:w3c:",
           "w3c:w3c:",
           "w3c-css:w3c-css:",

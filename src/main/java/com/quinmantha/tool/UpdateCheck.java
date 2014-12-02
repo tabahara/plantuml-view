@@ -27,8 +27,8 @@ public class UpdateCheck {
 
     public void start(){
         bExec = true;
-        registeredFiles = new ArrayList();
-        lastModifiedTimes = new HashMap();
+        registeredFiles = new ArrayList<String>();
+        lastModifiedTimes = new HashMap<String,Long>();
         Thread thread = new Thread(new Runnable(){
             @Override
             public void run(){
@@ -69,9 +69,11 @@ public class UpdateCheck {
     protected void checkNew(){
         String[] files = _targetDir.list();
         for(String file:files){
-            if(!registeredFiles.contains(file)){
-                registeredFiles.add(file);
-                System.out.println("add " + file);
+            if(file.charAt(0) != '.') {
+                if (!registeredFiles.contains(file)) {
+                    registeredFiles.add(file);
+                    System.out.println("add " + file);
+                }
             }
         }
     }

@@ -13,6 +13,11 @@
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" exported="" name="Gradle: batik-all-1.7" level="project" />
+    <orderEntry type="library" exported="" name="Gradle: plantuml-8010" level="project" />
+    <orderEntry type="library" exported="" name="Gradle: w3c" level="project" />
+    <orderEntry type="library" exported="" name="Gradle: w3c-css" level="project" />
+    <orderEntry type="library" exported="" name="Gradle: w3c-dom" level="project" />
+    <orderEntry type="library" exported="" name="Gradle: org.w3c.css.sac-1.3.0" level="project" />
   </component>
 </module>
 
