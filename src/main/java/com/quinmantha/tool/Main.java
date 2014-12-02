@@ -31,7 +31,11 @@ class B
 A<|--B
 @enduml
  */
-public class Main {
+public class Main extends UpdateCheck {
+    public Main(String target){
+        super(new File(target));
+    }
+
     private static JSVGCanvas canvas = null;
     private static void openSVG(File f){
         try {
@@ -46,7 +50,35 @@ public class Main {
             e.printStackTrace();
         }
     }
+
+    private boolean isSVG(File f){
+        String fname = f.getName();
+        System.out.println("fname(" + fname + ")");
+
+        String ext="";
+        int pos = fname.lastIndexOf(".");
+        if(pos != -1){
+            ext= fname.substring(pos+1);
+        }
+        return ext.equalsIgnoreCase("svg");
+    }
+
+    @Override
+    protected void onModified(String filename){
+        System.out.println("update svg (" + filename + ")");
+        File f = new File(getTargetDir(), filename);
+        if(isSVG(f)) {
+            openSVG(f);
+        }
+    }
+
     public static void main(String[] args){
+        String targetName = args[0];
+        System.out.println("watch:"+args[0]);
+
+        Main obj = new Main(targetName);
+        obj.start();
+
         JFrame f = new JFrame();
         f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         f.getContentPane().setBackground(Color.WHITE);
