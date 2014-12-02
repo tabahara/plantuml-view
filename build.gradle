@@ -9,11 +9,25 @@ repositories {
 }
 
 dependencies { 
-  compile 'batik:batik-all:1.7'
+  compile 'batik:batik-all:1.7',
+          "w3c:w3c:",
+          "w3c:w3c:",
+          "w3c-css:w3c-css:",
+          "w3c-dom:w3c-dom:",
+          "org.w3c.css.sac:org.w3c.css.sac:1.3.0"
 }
 
-jar { 
-  manifest { 
-    attributes("Main-Class" : "com.quinmantha.tool.Main");
-  }
+jar {
+    manifest {
+        attributes("Main-Class" : "com.quinmantha.tool.Main");
+    }
+}
+
+version="1.0"
+task fatJar(type: Jar){
+    manifest {
+        attributes "Main-Class" : "com.quinmantha.tool.Main"
+    }
+    baseName = project.name + "-all"
+    from { configurations.compile.collect {it.isDirectory() ? it : zipTree(it) }} with jar
 }

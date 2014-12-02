@@ -1,4 +1,7 @@
 build/
+classes/
+.idea/
 .git/
 .gradle/
+local.properties
 *~
