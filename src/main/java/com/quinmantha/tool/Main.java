@@ -45,12 +45,18 @@ class B
 A<|--B
 @enduml
  */
-public class Main extends UpdateCheck {
+public class Main extends UpdateCheckFile {
     public static void main(String[] args){
         String targetName = args[0];
         System.out.println("watch:"+args[0]);
-        Main obj = new Main(targetName);
-        obj.start();
+
+        File f = new File(targetName);
+        if(f.exists() && f.isFile()) {
+            Main obj = new Main(targetName);
+            obj.start();
+        } else {
+            System.out.println("File not found.");
+        }
     }
 
 
@@ -69,22 +75,21 @@ public class Main extends UpdateCheck {
         canvas = new ArrayList<JSVGCanvas>();
 
         canvas.add(new JSVGCanvas());
-        canvas.get(0).setBackground(new Color(255,250,205));
+        canvas.get(0).setBackground(new Color(255,250,240));
         viewFrame.getContentPane().add(canvas.get(0));
 
+        /*
         canvas.add(new JSVGCanvas());
         canvas.get(1).setBackground(new Color(255,250,205));
         viewFrame.getContentPane().add(canvas.get(1));
-
         canvas.add(new JSVGCanvas());
         canvas.get(2).setBackground(new Color(255,250,205));
         viewFrame.getContentPane().add(canvas.get(2));
-
+        */
         viewFrame.setVisible(true);
     }
 
-    private boolean is(File f, String ext){
-        String fname = f.getName();
+    private boolean is(String fname, String ext){
         String t = "";
         int pos = fname.lastIndexOf(".");
         if(pos != -1){
@@ -95,14 +100,14 @@ public class Main extends UpdateCheck {
 
 
     @Override
-    protected void onModified(String filename){
+    protected void onModified(File file){
+        String filename = file.getName();
         System.out.println("update svg (" + filename + ")");
-        File f = new File(getTargetDir(), filename);
 
         if( filename.charAt(0) != '.' ) {
-            if (is(f, "puml")) {
+            if (is(filename, "puml")) {
                 try {
-                    openPlantUML(f);
+                    openPlantUML(file);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }

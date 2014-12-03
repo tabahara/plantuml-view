@@ -78,7 +78,7 @@ public class UpdateCheck {
         }
     }
 
-    protected void onModified(String filename){
+    protected void onModified(File filename){
         System.out.println("onModified(" + filename + ")");
 
     }
@@ -95,12 +95,12 @@ public class UpdateCheck {
                 if(lastModified < newModified ){
                     System.out.println("update entry(" + filename + ")");
                     lastModifiedTimes.put(filename, new Long(newModified));
-                    onModified(filename);
+                    onModified(file);
                 }
             } catch(NullPointerException e){
                 System.out.println("new entry(" + filename + ")");
                 lastModifiedTimes.put(filename, new Long(newModified));
-                onModified(filename);
+                onModified(file);
             }
         }
     }
