@@ -69,8 +69,8 @@ public class Main extends UpdateCheckFile {
 
         viewFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         viewFrame.getContentPane().setBackground(Color.WHITE);
-        viewFrame.getContentPane().setLayout(new FlowLayout(FlowLayout.LEFT,32,32));
-        viewFrame.setSize(400,300);
+        viewFrame.getContentPane().setLayout(new BorderLayout(32,32));
+        viewFrame.setSize(500, 600);
 
         canvas = new ArrayList<JSVGCanvas>();
 
