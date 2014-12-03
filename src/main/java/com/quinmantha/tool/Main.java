@@ -86,6 +86,13 @@ public class Main extends UpdateCheckFile {
         canvas.get(2).setBackground(new Color(255,250,205));
         viewFrame.getContentPane().add(canvas.get(2));
         */
+
+        try {
+            openPlantUML(new File(target));
+        } catch (IOException e){
+            System.out.println(e.toString());
+        }
+
         viewFrame.setVisible(true);
     }
 
@@ -104,15 +111,15 @@ public class Main extends UpdateCheckFile {
         String filename = file.getName();
         System.out.println("update svg (" + filename + ")");
 
-        if( filename.charAt(0) != '.' ) {
-            if (is(filename, "puml")) {
-                try {
-                    openPlantUML(file);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
+        //if( filename.charAt(0) != '.' ) {
+        //if (is(filename, "puml")) {
+        try {
+            openPlantUML(file);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
+        //}
+        //}
     }
 
     private void openPlantUML(File f) throws IOException {
