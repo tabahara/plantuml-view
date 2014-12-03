@@ -1,6 +1,14 @@
 package com.quinmantha.tool;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
+import java.nio.file.Path;
+import java.nio.file.StandardWatchEventKinds;
+import java.nio.file.WatchEvent;
+import java.nio.file.WatchKey;
+import java.nio.file.WatchService;
 
 /**
  * Created by tukahara on 14/12/03.
@@ -21,13 +29,42 @@ public class UpdateCheckFile {
         Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
-                while (bExec) {
-                    try {
-                        Thread.sleep(1000L);
-                    } catch (InterruptedException e) {
-                        ;
+                String dir = _targetFile.getParent();
+                String name = _targetFile.getName();
+                System.out.println(String.format("dir:%s name:%s", dir,name));
+                Path path = FileSystems.getDefault().getPath(dir);
+                try {
+                    WatchService ws = path.getFileSystem().newWatchService();
+                    path.register(ws, StandardWatchEventKinds.ENTRY_MODIFY);
+                    while (bExec) {
+                        try {
+                            WatchKey wk = ws.take();
+
+                            for(final WatchEvent<?> ev : wk.pollEvents()){
+                                WatchEvent.Kind<?> kind = ev.kind();
+                                if(kind.equals(StandardWatchEventKinds.ENTRY_MODIFY)){
+                                    Path p = (Path)(ev.context());
+                                    String s = p.getFileName().toString();
+                                    if(name.equals(s)) {
+                                        System.out.println("check-0!");
+                                        check();
+                                    } else {
+                                        System.out.println("check-1!");
+                                    }
+                                }
+                            }
+
+                            if(!wk.reset()){
+                                wk.cancel();
+                                ws.close();
+                                bExec = false;
+                            }
+                        } catch (InterruptedException e) {
+                            ;
+                        }
                     }
-                    check();
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
             }
         });

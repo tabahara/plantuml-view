@@ -51,7 +51,7 @@ public class Main extends UpdateCheckFile {
         System.out.println("watch:"+args[0]);
 
         File f = new File(targetName);
-        if(f.exists() && f.isFile()) {
+        if(f.exists() && f.isFile() ) {
             Main obj = new Main(targetName);
             obj.start();
         } else {
