@@ -31,7 +31,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
-import javax.swing.JFileChooser;
+import javax.swing.JTabbedPane;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
@@ -62,6 +62,8 @@ public class Main extends UpdateCheckFile {
 
     private ArrayList<JSVGCanvas> canvas;
     private JFrame viewFrame;
+    private JTabbedPane pane;
+
     public Main(String target){
         super(new File(target));
 
@@ -71,14 +73,15 @@ public class Main extends UpdateCheckFile {
         viewFrame.getContentPane().setBackground(Color.WHITE);
         viewFrame.getContentPane().setLayout(new BorderLayout(32,32));
         viewFrame.setSize(500, 600);
+	pane = new JTabbedPane();
+	viewFrame.getContentPane().add(pane);
 
         canvas = new ArrayList<JSVGCanvas>();
 
+        /*
         canvas.add(new JSVGCanvas());
         canvas.get(0).setBackground(new Color(255,250,240));
         viewFrame.getContentPane().add(canvas.get(0));
-
-        /*
         canvas.add(new JSVGCanvas());
         canvas.get(1).setBackground(new Color(255,250,205));
         viewFrame.getContentPane().add(canvas.get(1));
@@ -109,17 +112,13 @@ public class Main extends UpdateCheckFile {
     @Override
     protected void onModified(File file){
         String filename = file.getName();
-        System.out.println("update svg (" + filename + ")");
+        System.out.println("update(" + filename + ")");
 
-        //if( filename.charAt(0) != '.' ) {
-        //if (is(filename, "puml")) {
         try {
             openPlantUML(file);
         } catch (IOException e) {
             e.printStackTrace();
         }
-        //}
-        //}
     }
 
     private void openPlantUML(File f) throws IOException {
@@ -132,12 +131,24 @@ public class Main extends UpdateCheckFile {
         SAXSVGDocumentFactory svgf = new SAXSVGDocumentFactory(parser);
         int idx = 0;
         for(GeneratedImage g : images){
+	    System.out.println("#1:"+idx + ":" + canvas.size());
             Document doc = svgf.createDocument(null, new FileInputStream(g.getPngFile()));
+            if( idx >= canvas.size()){
+		System.out.println("add canvas");
+		canvas.add(new JSVGCanvas());
+		canvas.get(idx).setBackground(new Color(255,250,240));
+		pane.addTab(g.getPngFile().getName(), canvas.get(idx));
+            }
             canvas.get(idx).setDocument(doc);
             idx++;
-            if( idx >= canvas.size()){
-                break;
-            }
         }
+	System.out.println("#2:"+idx + ":" + canvas.size());
+	while(idx < canvas.size()){
+	    System.out.println("del canvas");
+	    System.out.println("#3:"+idx + ":" + canvas.size());
+	    JSVGCanvas o = canvas.get(idx);
+	    pane.remove(o);
+	    canvas.remove(o);
+	}
     }
 }
