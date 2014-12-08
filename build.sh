@@ -1,4 +1,4 @@
 #!/bin/bash
 ./gradlew clean distZip
-cp build/distributions/plantuml-view-1.0.zip .
+cp build/distributions/plantuml-view.zip .
 # ./gradlew run -Pargs="test/testfile.puml"
