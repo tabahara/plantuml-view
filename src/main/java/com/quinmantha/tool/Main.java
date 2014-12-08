@@ -139,6 +139,7 @@ public class Main extends UpdateCheckFile {
 		canvas.get(idx).setBackground(new Color(255,250,240));
 		pane.addTab(g.getPngFile().getName(), canvas.get(idx));
             }
+	    pane.setTitleAt(idx,g.getPngFile().getName());
             canvas.get(idx).setDocument(doc);
             idx++;
         }
