@@ -66,7 +66,7 @@ public class Main extends UpdateCheckFile {
         super(new File(target));
 
         viewFrame = new JFrame();
-
+	viewFrame.setTitle( target );
         viewFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         viewFrame.getContentPane().setBackground(Color.WHITE);
         viewFrame.getContentPane().setLayout(new BorderLayout(32,32));
