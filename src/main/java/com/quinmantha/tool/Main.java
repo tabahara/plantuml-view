@@ -64,11 +64,18 @@ public class Main extends UpdateCheckFile {
     private JFrame viewFrame;
     private JTabbedPane pane;
 
+    private String makeTitle(String fpath){
+	File target = new File(fpath);
+	File parent = new File(target.getParent());
+	System.out.println(String.format("%s %s\n", parent.getName(), target.getName()));
+	return parent.getName() + target.separator + target.getName();
+    }
+
     public Main(String target){
         super(new File(target));
 
         viewFrame = new JFrame();
-	viewFrame.setTitle( target );
+	viewFrame.setTitle(makeTitle(target));
         viewFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         viewFrame.getContentPane().setBackground(Color.WHITE);
         viewFrame.getContentPane().setLayout(new BorderLayout(32,32));
