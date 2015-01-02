@@ -50,14 +50,18 @@ public class Main extends UpdateCheckFile {
         }
     }
 
-
     private ArrayList<JSVGCanvas> canvas;
     private JFrame viewFrame;
     private JTabbedPane pane;
 
     private String makeTitle(String fpath){
         File target = new File(fpath);
-        File parent = new File(target.getParent());
+
+        String parentPath = target.getParent();
+        if( parentPath == null ){
+            parentPath = ".";
+        }
+        File parent = new File(parentPath);
         System.out.println(String.format("%s %s\n", parent.getName(), target.getName()));
         return parent.getName() + File.separator + target.getName();
     }
