@@ -30,6 +30,9 @@ public class UpdateCheckFile {
             @Override
             public void run() {
                 String dir = _targetFile.getParent();
+                if(dir == null){
+                    dir = ".";
+                }
                 String name = _targetFile.getName();
                 System.out.println(String.format("dir:%s name:%s", dir,name));
                 Path path = FileSystems.getDefault().getPath(dir);
