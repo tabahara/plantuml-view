@@ -1,44 +1,46 @@
 apply plugin: 'java'
 
-defaultTasks 'distZip'
+defaultTasks 'run'
 
 sourceCompatibility='1.7'
 targetCompatibility='1.7'
 
-task wrapper(type:Wrapper){ 
-  gradleVersion="2.2"
+task wrapper(type:Wrapper){
+    gradleVersion="2.2"
 }
 
-repositories { 
-  mavenCentral();
+repositories {
+    mavenCentral();
 }
 
-dependencies { 
-  compile 'org.apache.xmlgraphics:batik-swing:1.7'
-  compile 'net.sourceforge.plantuml:plantuml:8012+'
+dependencies {
+    compile 'org.apache.xmlgraphics:batik-swing:1.7'
+    compile 'net.sourceforge.plantuml:plantuml:8012+'
 }
 
 jar {
-  manifest {
-    attributes("Main-Class" : "com.quinmantha.tool.Main");
-  }
+    manifest {
+        attributes("Main-Class" : "com.quinmantha.tool.Main");
+    }
 }
 
-String getHomeDir() { 
-  return System.getProperty("user.home")
+String getHomeDir() {
+    return System.getProperty("user.home")
 }
 String dest = getHomeDir() + '/bin'
 
 task install(type:Copy, dependsOn:'fatJar'){
-  from 'build/libs/plantuml-view-all-1.0.jar'
-  into dest
+    from 'build/libs/plantuml-view-all-1.0.jar'
+    into dest
 }
 
 apply plugin: 'application'
 mainClassName = 'com.quinmantha.tool.Main'
-run { 
-  if(project.hasProperty('args')){ 
-    args project.args.split('\\s+')
-  }
+run {
+    if(project.hasProperty('args')){
+        args project.args.split('\\s+')
+    } else {
+        args "src/test/res/test1.puml"
+    }
 }
 

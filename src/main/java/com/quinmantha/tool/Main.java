@@ -4,7 +4,6 @@ import net.sourceforge.plantuml.FileFormat;
 import net.sourceforge.plantuml.FileFormatOption;
 import net.sourceforge.plantuml.GeneratedImage;
 import net.sourceforge.plantuml.SourceFileReader;
-import net.sourceforge.plantuml.SourceStringReader;
 import net.sourceforge.plantuml.preproc.Defines;
 
 import org.apache.batik.dom.svg.SAXSVGDocumentFactory;
@@ -14,28 +13,15 @@ import org.w3c.dom.Document;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.FlowLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.LinkedList;
-import java.util.List;
 
 import javax.swing.JTabbedPane;
 import javax.swing.JFrame;
-import javax.swing.JMenu;
-import javax.swing.JMenuBar;
-import javax.swing.JMenuItem;
 
 /*
 @startuml doc-files/Main.svg
@@ -47,6 +33,11 @@ A<|--B
  */
 public class Main extends UpdateCheckFile {
     public static void main(String[] args){
+        if( args.length < 1){
+            System.err.println("missing argument");
+            return ;
+        }
+
         String targetName = args[0];
         System.out.println("watch:"+args[0]);
 
@@ -65,25 +56,25 @@ public class Main extends UpdateCheckFile {
     private JTabbedPane pane;
 
     private String makeTitle(String fpath){
-	File target = new File(fpath);
-	File parent = new File(target.getParent());
-	System.out.println(String.format("%s %s\n", parent.getName(), target.getName()));
-	return parent.getName() + target.separator + target.getName();
+        File target = new File(fpath);
+        File parent = new File(target.getParent());
+        System.out.println(String.format("%s %s\n", parent.getName(), target.getName()));
+        return parent.getName() + File.separator + target.getName();
     }
 
     public Main(String target){
         super(new File(target));
 
         viewFrame = new JFrame();
-	viewFrame.setTitle(makeTitle(target));
+        viewFrame.setTitle(makeTitle(target));
         viewFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         viewFrame.getContentPane().setBackground(Color.WHITE);
         viewFrame.getContentPane().setLayout(new BorderLayout(32,32));
         viewFrame.setSize(500, 600);
-	pane = new JTabbedPane();
-	viewFrame.getContentPane().add(pane);
+        pane = new JTabbedPane();
+        viewFrame.getContentPane().add(pane);
 
-        canvas = new ArrayList<JSVGCanvas>();
+        canvas = new ArrayList<>();
 
         /*
         canvas.add(new JSVGCanvas());
@@ -106,14 +97,14 @@ public class Main extends UpdateCheckFile {
         viewFrame.setVisible(true);
     }
 
-    private boolean is(String fname, String ext){
+ /*   private boolean is(String fname, String ext){
         String t = "";
         int pos = fname.lastIndexOf(".");
         if(pos != -1){
             t= fname.substring(pos+1);
         }
         return t.equalsIgnoreCase(ext);
-    }
+    }*/
 
 
     @Override
@@ -138,25 +129,25 @@ public class Main extends UpdateCheckFile {
         SAXSVGDocumentFactory svgf = new SAXSVGDocumentFactory(parser);
         int idx = 0;
         for(GeneratedImage g : images){
-	    System.out.println("#1:"+idx + ":" + canvas.size());
+            System.out.println("#1:"+idx + ":" + canvas.size());
             Document doc = svgf.createDocument(null, new FileInputStream(g.getPngFile()));
             if( idx >= canvas.size()){
-		System.out.println("add canvas");
-		canvas.add(new JSVGCanvas());
-		canvas.get(idx).setBackground(new Color(255,250,240));
-		pane.addTab(g.getPngFile().getName(), canvas.get(idx));
+                System.out.println("add canvas");
+                canvas.add(new JSVGCanvas());
+                canvas.get(idx).setBackground(new Color(255,250,240));
+                pane.addTab(g.getPngFile().getName(), canvas.get(idx));
             }
-	    pane.setTitleAt(idx,g.getPngFile().getName());
+            pane.setTitleAt(idx,g.getPngFile().getName());
             canvas.get(idx).setDocument(doc);
             idx++;
         }
-	System.out.println("#2:"+idx + ":" + canvas.size());
-	while(idx < canvas.size()){
-	    System.out.println("del canvas");
-	    System.out.println("#3:"+idx + ":" + canvas.size());
-	    JSVGCanvas o = canvas.get(idx);
-	    pane.remove(o);
-	    canvas.remove(o);
-	}
+        System.out.println("#2:"+idx + ":" + canvas.size());
+        while(idx < canvas.size()){
+            System.out.println("del canvas");
+            System.out.println("#3:"+idx + ":" + canvas.size());
+            JSVGCanvas o = canvas.get(idx);
+            pane.remove(o);
+            canvas.remove(o);
+        }
     }
 }
