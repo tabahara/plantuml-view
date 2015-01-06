@@ -1,0 +1,9 @@
+[Desktop Entry]
+Encoding=UTF-8
+Name=Plantuml Viewer
+Exec=/usr/local/bin/plantuml-view/bin/plantuml-view %f
+Type=Application
+Categories=Application;IDE
+Version=1.0
+Terminal=0
+
