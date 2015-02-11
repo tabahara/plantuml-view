@@ -10,6 +10,8 @@ import java.nio.file.WatchEvent;
 import java.nio.file.WatchKey;
 import java.nio.file.WatchService;
 
+import com.sun.nio.file.SensitivityWatchEventModifier;
+
 /**
  * Created by tukahara on 14/12/03.
  */
@@ -38,7 +40,8 @@ public class UpdateCheckFile {
                 Path path = FileSystems.getDefault().getPath(dir);
                 try {
                     WatchService ws = path.getFileSystem().newWatchService();
-                    path.register(ws, StandardWatchEventKinds.ENTRY_MODIFY);
+                    path.register(ws, new WatchEvent.Kind[]{StandardWatchEventKinds.ENTRY_MODIFY},
+											SensitivityWatchEventModifier.HIGH);
                     while (bExec) {
                         try {
                             WatchKey wk = ws.take();
