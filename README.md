@@ -16,3 +16,9 @@ plantuml-view 'target-file'
 ```
 ./gradlew distZip
 ```
+or
+```
+./gradlew installApp
+```
+default destination is ~/bin/plantuml-view
+

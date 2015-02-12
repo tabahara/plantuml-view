@@ -1,13 +1,15 @@
-apply plugin: 'java'
+apply plugin: 'application'
 
 defaultTasks 'run'
 
 sourceCompatibility='1.7'
 targetCompatibility='1.7'
 
+/*
 task wrapper(type:Wrapper){
     gradleVersion="2.2"
 }
+*/
 
 repositories {
     mavenCentral();
@@ -15,7 +17,7 @@ repositories {
 
 dependencies {
     compile 'org.apache.xmlgraphics:batik-swing:1.7'
-    compile 'net.sourceforge.plantuml:plantuml:8012+'
+    compile 'net.sourceforge.plantuml:plantuml:8019+'
 }
 
 jar {
@@ -27,12 +29,7 @@ jar {
 String getHomeDir() {
     return System.getProperty("user.home")
 }
-String dest = getHomeDir() + '/bin'
-
-task install(type:Copy, dependsOn:'fatJar'){
-    from 'build/libs/plantuml-view-all-1.0.jar'
-    into dest
-}
+installApp.into getHomeDir() + '/bin/plantuml-view'; 
 
 apply plugin: 'application'
 mainClassName = 'com.quinmantha.tool.Main'
