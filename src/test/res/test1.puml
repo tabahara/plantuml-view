@@ -1,12 +1,5 @@
 @startuml docs/test1.svg
 class A
 class B
-class C
 A <|- B
-@enduml
-
-@startuml docs/test2.svg
-class AA
-class BB
-AA <|- BB
 @enduml
