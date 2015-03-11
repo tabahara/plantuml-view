@@ -6,22 +6,45 @@ import net.sourceforge.plantuml.GeneratedImage;
 import net.sourceforge.plantuml.SourceFileReader;
 import net.sourceforge.plantuml.preproc.Defines;
 
+import org.apache.batik.dom.events.NodeEventTarget;
 import org.apache.batik.dom.svg.SAXSVGDocumentFactory;
 import org.apache.batik.swing.JSVGCanvas;
+import org.apache.batik.swing.gvt.JGVTComponent;
+import org.apache.batik.swing.svg.GVTTreeBuilderAdapter;
+import org.apache.batik.swing.svg.GVTTreeBuilderEvent;
+import org.apache.batik.swing.svg.JSVGComponent;
+import org.apache.batik.swing.svg.SVGDocumentLoaderAdapter;
+import org.apache.batik.swing.svg.SVGDocumentLoaderEvent;
+import org.apache.batik.swing.svg.SVGDocumentLoaderListener;
+import org.apache.batik.swing.svg.SVGLoadEventDispatcherAdapter;
+import org.apache.batik.swing.svg.SVGLoadEventDispatcherEvent;
+import org.apache.batik.util.SVGConstants;
 import org.apache.batik.util.XMLResourceDescriptor;
 import org.w3c.dom.Document;
+import org.w3c.dom.events.Event;
+import org.w3c.dom.events.EventListener;
+import org.w3c.dom.svg.SVGSVGElement;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.FlowLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.geom.AffineTransform;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.LinkedList;
 
+import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.JFrame;
+import javax.swing.JButton;
+import javax.xml.XMLConstants;
 
 /*
 @startuml doc-files/Main.svg
@@ -50,7 +73,7 @@ public class Main extends UpdateCheckFile {
         }
     }
 
-    private ArrayList<JSVGCanvas> canvas;
+    private ArrayList<SVGDiagram> components;
     private JFrame viewFrame;
     private JTabbedPane pane;
 
@@ -68,29 +91,29 @@ public class Main extends UpdateCheckFile {
 
     public Main(String target){
         super(new File(target));
+        zoomFactorTable = new HashMap<>();
 
         viewFrame = new JFrame();
         viewFrame.setTitle(makeTitle(target));
         viewFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         viewFrame.getContentPane().setBackground(Color.WHITE);
-        viewFrame.getContentPane().setLayout(new BorderLayout(32,32));
+        viewFrame.getContentPane().setLayout(new BorderLayout());
         viewFrame.setSize(500, 600);
+
+        JButton button = new JButton("check");
+        button.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+                components.get(0).setZoomFactor(0.8);
+            }
+        });
+        viewFrame.getContentPane().add("North", button);
+
+
         pane = new JTabbedPane();
-        viewFrame.getContentPane().add(pane);
+        viewFrame.getContentPane().add("Center", pane);
 
-        canvas = new ArrayList<>();
-
-        /*
-        canvas.add(new JSVGCanvas());
-        canvas.get(0).setBackground(new Color(255,250,240));
-        viewFrame.getContentPane().add(canvas.get(0));
-        canvas.add(new JSVGCanvas());
-        canvas.get(1).setBackground(new Color(255,250,205));
-        viewFrame.getContentPane().add(canvas.get(1));
-        canvas.add(new JSVGCanvas());
-        canvas.get(2).setBackground(new Color(255,250,205));
-        viewFrame.getContentPane().add(canvas.get(2));
-        */
+        components = new ArrayList<>();
 
         try {
             openPlantUML(new File(target));
@@ -101,25 +124,23 @@ public class Main extends UpdateCheckFile {
         viewFrame.setVisible(true);
     }
 
- /*   private boolean is(String fname, String ext){
-        String t = "";
-        int pos = fname.lastIndexOf(".");
-        if(pos != -1){
-            t= fname.substring(pos+1);
-        }
-        return t.equalsIgnoreCase(ext);
-    }*/
-
-
     @Override
     protected void onModified(File file){
         String filename = file.getName();
         System.out.println("update(" + filename + ")");
 
         try {
+            saveZoomFactors();
             openPlantUML(file);
         } catch (IOException e) {
             e.printStackTrace();
+        }
+    }
+
+    private HashMap<String,Double> zoomFactorTable;
+    private void saveZoomFactors(){
+        for(SVGDiagram d : components ){
+            zoomFactorTable.put(d.getName(), d.getZoomFactor());
         }
     }
 
@@ -133,25 +154,31 @@ public class Main extends UpdateCheckFile {
         SAXSVGDocumentFactory svgf = new SAXSVGDocumentFactory(parser);
         int idx = 0;
         for(GeneratedImage g : images){
-            System.out.println("#1:"+idx + ":" + canvas.size());
+            System.out.println("#1:" + idx + ":" + components.size());
             Document doc = svgf.createDocument(null, new FileInputStream(g.getPngFile()));
-            if( idx >= canvas.size()){
-                System.out.println("add canvas");
-                canvas.add(new JSVGCanvas());
-                canvas.get(idx).setBackground(new Color(255,250,240));
-                pane.addTab(g.getPngFile().getName(), canvas.get(idx));
+            if( idx >= components.size()){
+                System.out.println("add components");
+                Double zoomFactor;
+                String name = g.getPngFile().getName();
+                zoomFactor = zoomFactorTable.get(name);
+                if(zoomFactor == null){
+                    zoomFactor = new Double(1.0f);
+                }
+                SVGDiagram diagram = new SVGDiagram(g.getPngFile().getName(), zoomFactor.doubleValue());
+                components.add(diagram);
+                pane.addTab(g.getPngFile().getName(), components.get(idx).getSvgComponent());
             }
-            pane.setTitleAt(idx,g.getPngFile().getName());
-            canvas.get(idx).setDocument(doc);
+            pane.setTitleAt(idx, g.getPngFile().getName());
+            components.get(idx).setDocument(doc);
             idx++;
         }
-        System.out.println("#2:"+idx + ":" + canvas.size());
-        while(idx < canvas.size()){
-            System.out.println("del canvas");
-            System.out.println("#3:"+idx + ":" + canvas.size());
-            JSVGCanvas o = canvas.get(idx);
-            pane.remove(o);
-            canvas.remove(o);
+        System.out.println("#2:" + idx + ":" + components.size());
+        while(idx < components.size()){
+            System.out.println("del components");
+            System.out.println("#3:"+idx + ":" + components.size());
+            SVGDiagram o = components.get(idx);
+            pane.remove(o.getSvgComponent());
+            components.remove(o);
         }
     }
 }
