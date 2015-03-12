@@ -7,21 +7,25 @@ import net.sourceforge.plantuml.SourceFileReader;
 import net.sourceforge.plantuml.preproc.Defines;
 
 import org.apache.batik.dom.svg.SAXSVGDocumentFactory;
-import org.apache.batik.swing.JSVGCanvas;
 import org.apache.batik.util.XMLResourceDescriptor;
 import org.w3c.dom.Document;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.geom.AffineTransform;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.LinkedList;
 
 import javax.swing.JTabbedPane;
 import javax.swing.JFrame;
+import javax.swing.JButton;
 
 /*
 @startuml doc-files/Main.svg
@@ -50,7 +54,7 @@ public class Main extends UpdateCheckFile {
         }
     }
 
-    private ArrayList<JSVGCanvas> canvas;
+    private ArrayList<SVGDiagram> components;
     private JFrame viewFrame;
     private JTabbedPane pane;
 
@@ -68,29 +72,30 @@ public class Main extends UpdateCheckFile {
 
     public Main(String target){
         super(new File(target));
+        affineTransformHashMap = new AffineTransformHashMap();
 
         viewFrame = new JFrame();
         viewFrame.setTitle(makeTitle(target));
         viewFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         viewFrame.getContentPane().setBackground(Color.WHITE);
-        viewFrame.getContentPane().setLayout(new BorderLayout(32,32));
+        viewFrame.getContentPane().setLayout(new BorderLayout());
         viewFrame.setSize(500, 600);
-        pane = new JTabbedPane();
-        viewFrame.getContentPane().add(pane);
-
-        canvas = new ArrayList<>();
 
         /*
-        canvas.add(new JSVGCanvas());
-        canvas.get(0).setBackground(new Color(255,250,240));
-        viewFrame.getContentPane().add(canvas.get(0));
-        canvas.add(new JSVGCanvas());
-        canvas.get(1).setBackground(new Color(255,250,205));
-        viewFrame.getContentPane().add(canvas.get(1));
-        canvas.add(new JSVGCanvas());
-        canvas.get(2).setBackground(new Color(255,250,205));
-        viewFrame.getContentPane().add(canvas.get(2));
+        JButton button = new JButton("check");
+        button.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+                components.get(0).zoom(0.8);
+            }
+        });
+        viewFrame.getContentPane().add("North", button);
         */
+
+        pane = new JTabbedPane();
+        viewFrame.getContentPane().add("Center", pane);
+
+        components = new ArrayList<>();
 
         try {
             openPlantUML(new File(target));
@@ -101,57 +106,81 @@ public class Main extends UpdateCheckFile {
         viewFrame.setVisible(true);
     }
 
- /*   private boolean is(String fname, String ext){
-        String t = "";
-        int pos = fname.lastIndexOf(".");
-        if(pos != -1){
-            t= fname.substring(pos+1);
-        }
-        return t.equalsIgnoreCase(ext);
-    }*/
-
-
     @Override
     protected void onModified(File file){
         String filename = file.getName();
         System.out.println("update(" + filename + ")");
 
         try {
+            saveZoomFactors();
             openPlantUML(file);
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
+    private AffineTransformHashMap affineTransformHashMap;
+    private void saveZoomFactors(){
+        System.out.println("save");
+        for(SVGDiagram d : components ){
+            System.out.println(String.format("save %s -> %s",
+                    d.getName(), d.getAffineTransform().toString()));
+            affineTransformHashMap.put(d.getName(), d.getAffineTransform());
+        }
+    }
+
     private void openPlantUML(File f) throws IOException {
         SourceFileReader sfReader
-                = new SourceFileReader(new Defines(), f, null, new LinkedList<String>(), "utf-8", new FileFormatOption(FileFormat.SVG));
+                = new SourceFileReader(new Defines(), f, null, new LinkedList<String>(),
+                "utf-8", new FileFormatOption(FileFormat.SVG));
 
         Collection<GeneratedImage> images = sfReader.getGeneratedImages();
 
         String parser = XMLResourceDescriptor.getXMLParserClassName();
-        SAXSVGDocumentFactory svgf = new SAXSVGDocumentFactory(parser);
+        SAXSVGDocumentFactory svgDocumentFactory = new SAXSVGDocumentFactory(parser);
         int idx = 0;
+        System.out.println("restore");
         for(GeneratedImage g : images){
-            System.out.println("#1:"+idx + ":" + canvas.size());
-            Document doc = svgf.createDocument(null, new FileInputStream(g.getPngFile()));
-            if( idx >= canvas.size()){
-                System.out.println("add canvas");
-                canvas.add(new JSVGCanvas());
-                canvas.get(idx).setBackground(new Color(255,250,240));
-                pane.addTab(g.getPngFile().getName(), canvas.get(idx));
+            System.out.println("#1:" + idx + ":" + components.size());
+            Document doc = svgDocumentFactory.createDocument(
+                    null, new FileInputStream(g.getPngFile()));
+            if( idx >= components.size()){
+                System.out.println("add components");
+                String name = g.getPngFile().getName();
+                SVGDiagram diagram = new SVGDiagram();
+                components.add(diagram);
+                pane.addTab(g.getPngFile().getName(), components.get(idx).getComponent());
             }
-            pane.setTitleAt(idx,g.getPngFile().getName());
-            canvas.get(idx).setDocument(doc);
+
+            String name = g.getPngFile().getName();
+            pane.setTitleAt(idx, name);
+
+            AffineTransform affineTransform;
+            affineTransform = affineTransformHashMap.get(name);
+            System.out.println(String.format("%s -> %s", name, affineTransform.toString()));
+            components.get(idx).setAffineTransform(affineTransform);
+            components.get(idx).setName(name);
+            components.get(idx).setDocument(doc);
             idx++;
         }
-        System.out.println("#2:"+idx + ":" + canvas.size());
-        while(idx < canvas.size()){
-            System.out.println("del canvas");
-            System.out.println("#3:"+idx + ":" + canvas.size());
-            JSVGCanvas o = canvas.get(idx);
-            pane.remove(o);
-            canvas.remove(o);
+        System.out.println("#2:" + idx + ":" + components.size());
+        while(idx < components.size()){
+            System.out.println("del components");
+            System.out.println("#3:"+idx + ":" + components.size());
+            SVGDiagram o = components.get(idx);
+            pane.remove(o.getComponent());
+            components.remove(o);
         }
+    }
+}
+
+class AffineTransformHashMap extends HashMap<String, AffineTransform> {
+    @Override
+    public AffineTransform get(Object key) {
+        AffineTransform affineTransform = super.get(key);
+        if(affineTransform == null){
+            affineTransform = AffineTransform.getTranslateInstance(0,0);
+        }
+        return affineTransform;
     }
 }
