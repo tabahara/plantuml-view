@@ -43,14 +43,14 @@ public class Main extends UpdateCheckFile {
         }
 
         String targetName = args[0];
-        System.out.println("watch:"+args[0]);
+        // System.out.println("watch:"+args[0]);
 
         File f = new File(targetName);
         if(f.exists() && f.isFile() ) {
             Main obj = new Main(targetName);
             obj.start();
         } else {
-            System.out.println("File not found.");
+            System.err.println("File not found.");
         }
     }
 
@@ -66,7 +66,7 @@ public class Main extends UpdateCheckFile {
             parentPath = ".";
         }
         File parent = new File(parentPath);
-        System.out.println(String.format("%s %s\n", parent.getName(), target.getName()));
+        // System.out.println(String.format("%s %s\n", parent.getName(), target.getName()));
         return parent.getName() + File.separator + target.getName();
     }
 
@@ -100,7 +100,7 @@ public class Main extends UpdateCheckFile {
         try {
             openPlantUML(new File(target));
         } catch (IOException e){
-            System.out.println(e.toString());
+            System.err.println(e.toString());
         }
 
         viewFrame.setVisible(true);
@@ -109,7 +109,7 @@ public class Main extends UpdateCheckFile {
     @Override
     protected void onModified(File file){
         String filename = file.getName();
-        System.out.println("update(" + filename + ")");
+        // System.out.println("update(" + filename + ")");
 
         try {
             saveZoomFactors();
@@ -121,10 +121,9 @@ public class Main extends UpdateCheckFile {
 
     private AffineTransformHashMap affineTransformHashMap;
     private void saveZoomFactors(){
-        System.out.println("save");
+        // System.out.println("save");
         for(SVGDiagram d : components ){
-            System.out.println(String.format("save %s -> %s",
-                    d.getName(), d.getAffineTransform().toString()));
+            // System.out.println(String.format("save %s -> %s", d.getName(), d.getAffineTransform().toString()));
             affineTransformHashMap.put(d.getName(), d.getAffineTransform());
         }
     }
@@ -139,13 +138,13 @@ public class Main extends UpdateCheckFile {
         String parser = XMLResourceDescriptor.getXMLParserClassName();
         SAXSVGDocumentFactory svgDocumentFactory = new SAXSVGDocumentFactory(parser);
         int idx = 0;
-        System.out.println("restore");
+        // System.out.println("restore");
         for(GeneratedImage g : images){
-            System.out.println("#1:" + idx + ":" + components.size());
+            // System.out.println("#1:" + idx + ":" + components.size());
             Document doc = svgDocumentFactory.createDocument(
                     null, new FileInputStream(g.getPngFile()));
             if( idx >= components.size()){
-                System.out.println("add components");
+                // System.out.println("add components");
                 String name = g.getPngFile().getName();
                 SVGDiagram diagram = new SVGDiagram();
                 components.add(diagram);
@@ -157,16 +156,16 @@ public class Main extends UpdateCheckFile {
 
             AffineTransform affineTransform;
             affineTransform = affineTransformHashMap.get(name);
-            System.out.println(String.format("%s -> %s", name, affineTransform.toString()));
+            // System.out.println(String.format("%s -> %s", name, affineTransform.toString()));
             components.get(idx).setAffineTransform(affineTransform);
             components.get(idx).setName(name);
             components.get(idx).setDocument(doc);
             idx++;
         }
-        System.out.println("#2:" + idx + ":" + components.size());
+        // System.out.println("#2:" + idx + ":" + components.size());
         while(idx < components.size()){
-            System.out.println("del components");
-            System.out.println("#3:"+idx + ":" + components.size());
+            // System.out.println("del components");
+            // System.out.println("#3:"+idx + ":" + components.size());
             SVGDiagram o = components.get(idx);
             pane.remove(o.getComponent());
             components.remove(o);

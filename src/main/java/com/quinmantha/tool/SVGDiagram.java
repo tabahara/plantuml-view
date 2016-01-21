@@ -38,8 +38,7 @@ public class SVGDiagram implements  ISVGDiagram {
             @Override
             public void gvtBuildCompleted(GVTTreeBuilderEvent e) {
                 super.gvtBuildCompleted(e);
-                System.out.println(String.format("gvtBuildCompleted apply %s",
-                        mAffineTransform.toString()));
+                // System.out.println(String.format("gvtBuildCompleted apply %s", mAffineTransform.toString()));
                 setAffineTransform(mAffineTransform);
             }
         });

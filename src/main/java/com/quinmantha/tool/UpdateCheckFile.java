@@ -36,7 +36,7 @@ public class UpdateCheckFile {
                     dir = ".";
                 }
                 String name = _targetFile.getName();
-                System.out.println(String.format("dir:%s name:%s", dir,name));
+                // System.out.println(String.format("dir:%s name:%s", dir,name));
                 Path path = FileSystems.getDefault().getPath(dir);
                 try {
                     WatchService ws = path.getFileSystem().newWatchService();
