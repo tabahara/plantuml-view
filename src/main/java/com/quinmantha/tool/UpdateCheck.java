@@ -61,7 +61,7 @@ public class UpdateCheck {
             File file = new File(_targetDir, filename);
             if(!file.exists()){
                 it.remove();
-                System.out.println(filename + " has been deleted.");
+                // System.out.println(filename + " has been deleted.");
             }
         }
     }
@@ -72,14 +72,14 @@ public class UpdateCheck {
             if(file.charAt(0) != '.') {
                 if (!registeredFiles.contains(file)) {
                     registeredFiles.add(file);
-                    System.out.println("add " + file);
+                    // System.out.println("add " + file);
                 }
             }
         }
     }
 
     protected void onModified(File filename){
-        System.out.println("onModified(" + filename + ")");
+        // System.out.println("onModified(" + filename + ")");
 
     }
 
@@ -93,12 +93,12 @@ public class UpdateCheck {
             try {
                 long lastModified = lastModifiedTimes.get(filename);
                 if(lastModified < newModified ){
-                    System.out.println("update entry(" + filename + ")");
+                    // System.out.println("update entry(" + filename + ")");
                     lastModifiedTimes.put(filename, new Long(newModified));
                     onModified(file);
                 }
             } catch(NullPointerException e){
-                System.out.println("new entry(" + filename + ")");
+                // System.out.println("new entry(" + filename + ")");
                 lastModifiedTimes.put(filename, new Long(newModified));
                 onModified(file);
             }
