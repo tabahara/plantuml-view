@@ -52,10 +52,10 @@ public class UpdateCheckFile {
                                     Path p = (Path)(ev.context());
                                     String s = p.getFileName().toString();
                                     if(name.equals(s)) {
-                                        System.out.println("check-0!");
+                                        // System.out.println("check-0!");
                                         check();
                                     } else {
-                                        System.out.println("check-1!");
+                                        // System.out.println("check-1!");
                                     }
                                 }
                             }
