@@ -17,7 +17,7 @@ repositories {
 
 dependencies {
     compile 'org.apache.xmlgraphics:batik-swing:1.7'
-    compile 'net.sourceforge.plantuml:plantuml:8038'
+    compile 'net.sourceforge.plantuml:plantuml:8056'
 }
 
 jar {
