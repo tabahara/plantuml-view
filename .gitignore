@@ -5,4 +5,3 @@ classes/
 .gradle/
 local.properties
 *~
-gradle.properties
